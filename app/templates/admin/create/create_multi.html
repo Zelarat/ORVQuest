@@ -1,0 +1,116 @@
+{% extends "./base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Создание задания с множеством ответов</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    <form method="POST" action="{{ url_for('admin.create_multi') }}">
+        {{ form.hidden_tag() }}
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="mb-3">
+                    {{ form.quest_name.label(class="form-label") }}
+                    {{ form.quest_name(class="form-control", placeholder="Введите название задания") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.quest_description.label(class="form-label") }}
+                    {{ form.quest_description(class="form-control", placeholder="Введите условие задания") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.quest_points.label(class="form-label") }}
+                    {{ form.quest_points(class="form-control", placeholder="Введите награду за правильный ответ") }}
+                </div>
+            </div>
+        </div>
+
+        <div id="optionsBlock" class="card mb-4" style="display: block;">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5>Варианты ответов</h5>
+                <button type="button" id="addOptionBtn" class="btn btn-sm btn-primary">
+                    Добавить вариант
+                </button>
+            </div>
+            <div class="card-body" id="optionsContainer">
+                {% for option in form.quest_options %}
+                <div class="option-item mb-3">
+                    {{ option.hidden_tag() }}
+                    <div class="row g-2">
+                        <div class="col-md-8">
+                            {{ option.text(class="form-control", placeholder="Текст варианта") }}
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-check pt-2">
+                                {{ option.is_correct(class="form-check-input") }}
+                                {{ option.is_correct.label(class="form-check-label") }}
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            <button type="button" class="btn btn-sm btn-outline-danger remove-option">×</button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {{ form.submit(class="btn btn-primary") }}
+    </form>
+</div>
+
+<script>
+    const optionsContainer = document.getElementById('optionsContainer');
+    const addOptionBtn = document.getElementById('addOptionBtn');
+    const csrfToken = document.getElementById('csrf_token').value;
+
+    addOptionBtn.addEventListener('click', function() {
+        const index = optionsContainer.children.length;
+        const newOption = document.createElement('div');
+        newOption.className = 'option-item mb-3';
+        newOption.innerHTML = `
+        <input type="hidden" name="quest_options-${index}-csrf_token" value="${csrfToken}">
+        <div class="row g-2">
+            <div class="row g-2">
+                <div class="col-md-8">
+                    <input type="text" class="form-control" 
+                        name="quest_options-${index}-text"
+                        placeholder="Текст варианта" required>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-check pt-2">
+                        <input class="form-check-input" type="checkbox" 
+                            name="quest_options-${index}-is_correct">  <!-- Изменили здесь -->
+                        <label class="form-check-label">Правильный ответ</label>
+                    </div>
+                </div>
+                <div class="col-md-1">
+                    <button type="button" class="btn btn-sm btn-outline-danger remove-option">×</button>
+                </div>
+            </div>
+        </div>
+        `;
+        optionsContainer.appendChild(newOption);
+    });
+    
+    optionsContainer.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-option')) {
+            e.target.closest('.option-item').remove();
+            // Переиндексация оставшихся полей
+            const options = optionsContainer.querySelectorAll('.option-item');
+            options.forEach((option, index) => {
+                const inputs = option.querySelectorAll('input');
+                inputs[0].name = `quest_options-${index}-csrf_token`;
+                inputs[1].name = `quest_options-${index}-text`;
+                inputs[2].name = `quest_options-${index}-is_correct`;
+            });
+        }
+    });
+</script>
+{% endblock %}

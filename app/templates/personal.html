@@ -1,0 +1,55 @@
+<!-- app/blueprints/personal_account/templates/personal_account/account.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1>Личный кабинет</h1>
+    
+    <!-- Отображение ФИО пользователя -->
+    <div class="user-info mb-4">
+        <h2>{{ profile.last_name }} {{ profile.first_name }} {{ profile.middle_name or '' }}</h2>
+        <p>Место работы: {{ profile.workplace }}</p>
+        <p>Должность: {{ profile.position }}</p>
+    </div>
+    
+    <!-- Кнопки для админа -->
+    {% if current_user.is_admin %}
+    <div class="admin-actions mb-4">
+        <a href="{{ url_for('admin.questions') }}" class="btn btn-primary">База заданий</a>
+        <a href="{{ url_for('admin.create_tour') }}" class="btn btn-primary">База заданий</a>
+    </div>
+    {% endif %}
+    
+    <!-- Таблица результатов -->
+    <div class="results-section">
+        <h3>Результаты тестов/турниров</h3>
+        
+        {% if results %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Название</th>
+                    <th>Дата прохождения</th>
+                    <th>Результат</th>
+                    <th>Процент</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for result in results %}
+                <tr>
+                    <td>{{ result.title }}</td>
+                    <td>{{ result.date.strftime('%d.%m.%Y %H:%M') }}</td>
+                    <td>{{ result.score }} из {{ result.max_score }}</td>
+                    <td>{{ result.percentage }}%</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="alert alert-info">
+            Результаты не найдены
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

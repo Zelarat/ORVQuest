@@ -1,0 +1,164 @@
+{% extends "./base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+    <h1>Создание турнира</h1>
+    <form method="POST" action="{{ url_for('admin.create_tour') }}">
+        {{ form.hidden_tag() }}
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="mb-3">
+                    <button type="button" class="btn btn-primary", data-bs-toggle="modal" data-bs-target="#myModal">
+                        Добавить задания
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+<!--МОДАЛЬНОЕ ОКНО-->
+<div class="modal fade" id="myModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <form method="POST" action="{{ url_for('admin.select_quest_tour') }}" id="modalForm">
+                {{ search_form.hidden_tag() }}
+                <div class="modal-header">
+                    <h5 class="modal-title">Добавить задания</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="card-body">
+                        <div class="col-md-4">
+                            {{ search_form.questions_name.label(class="form-label") }}
+                            {{ search_form.questions_name(class="form-control") }}
+                        </div>
+                        <div class="col-md-4">
+                            {{ search_form.questions_type.label(class="form-label") }}
+                            {{ search_form.questions_type(class="form-control") }}
+                        </div>
+                        <div class="col-md-4">
+                            {{ search_form.questions_author.label(class="form-label") }}
+                            {{ search_form.questions_author(class="form-control") }}
+                        </div>
+
+                        <div class="col-12">
+                            <div class="d-flex justify-content-end gap-2">
+                                {{ search_form.search(class="btn btn-primary") }}
+                                {{ search_form.cancel(class="btn btn-primary") }}
+                            </div>
+                        </div>
+                    </div>
+                    <div id="tasks-table-container">
+                        {% include 'admin/create/_tasks_table.html' %}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" id="confirmSelection" class="btn btn-primary">Выбрать</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Обработчик формы поиска
+        document.querySelector('#myModal form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            
+            fetch("{{ url_for('admin.select_quest_tour') }}", {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': document.querySelector('#myModal [name="csrf_token"]').value
+                },
+                body: formData
+            })
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('tasks-table-container').innerHTML = html;
+                
+                // Навешиваем обработчики на новые кнопки выбора
+                document.querySelectorAll('.select-task').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const taskId = this.dataset.taskId;
+                        // Здесь можно обработать выбор задания
+                        console.log('Выбрано задание ID:', taskId);
+                        $('#myModal').modal('hide');
+                    });
+                });
+            });
+        });
+        
+        // Обработчик кнопки "Сбросить"
+        document.querySelector('#myModal [name="cancel"]').addEventListener('click', function(e) {
+            e.preventDefault();
+            fetch("{{ url_for('admin.reset_search') }}", {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('tasks-table-container').innerHTML = html;
+            });
+        });
+        document.getElementById('confirmSelection').addEventListener('click', function() {
+            // Собираем выбранные ID
+            const selectedCheckboxes = document.querySelectorAll('.task-checkbox:checked');
+            const selectedIds = Array.from(selectedCheckboxes).map(cb => cb.value);
+            
+            // Проверяем, что что-то выбрано
+            if (selectedIds.length === 0) {
+                alert('Пожалуйста, выберите хотя бы одно задание');
+                return;
+            }
+
+            // Отправляем на сервер
+            fetch("{{ url_for('admin.save_selected_task') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('#modalForm [name="csrf_token"]').value
+                },
+                body: JSON.stringify({
+                    selected_tasks: selectedIds
+                })
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Ошибка сети');
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    $('#myModal').modal('hide');
+                    // Обновляем страницу или выполняем другие действия
+                    window.location.reload();
+                } else {
+                    alert(data.message || 'Произошла ошибка');
+                }
+            })
+        });
+    });
+    
+
+    
+
+    function openModal() {
+        var myModal = new bootstrap.Modal(document.getElementById('myModal'));
+        myModal.show();
+    }
+
+    function closeModal() {
+        var myModal = bootstrap.Modal.getInstance(document.getElementById('myModal'));
+        myModal.hide();
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <!-- Главный баннер -->
+    <section id="hero" class="bg-dark text-white py-5">
+        <div class="container text-center">
+            <h1 class="display-4 mb-4">Добро пожаловать на платформу студенческих экономических турниров!</h1>
+            <p class="lead mb-4">Мы рады приветствовать вас на сайте, где студенты со всего мира могут развивать свои навыки в области экономики, финансов и управления через увлекательные и образовательные мероприятия.</p>
+            <a href="#register" class="btn btn-primary btn-lg">Присоединиться сейчас</a>
+        </div>
+    </section>
+
+    <!-- О проекте -->
+    <section id="about" class="py-5">
+        <div class="container">
+            <h2 class="text-center mb-4">Что такое студенческие экономические турниры?</h2>
+            <div class="row">
+                <div class="col-md-6">
+                    <p>Студенческие экономические турниры — это инновационная форма обучения, сочетающая элементы соревнований, аналитического мышления и практического применения экономических концепций. В ходе турниров участники:</p>
+                    <ul>
+                        <li>Решают сложные бизнес-задачи</li>
+                        <li>Разрабатывают стратегии для достижения финансового успеха</li>
+                        <li>Проявляют лидерские качества и командный дух</li>
+                        <li>Получают обратную связь от профессионалов в сфере экономики и финансов</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <img src="assets/tournament.jpg" alt="Турнир" class="img-fluid rounded shadow">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Как стать участником -->
+    <section id="how-to-participate" class="py-5">
+        <div class="container">
+            <h2 class="text-center mb-4">Как стать участником?</h2>
+            <ol class="list-group list-group-numbered">
+                <li class="list-group-item">Зарегистрируйтесь на сайте</li>
+                <li class="list-group-item">Выберите подходящий турнир</li>
+                <li class="list-group-item">Подготовьте свою команду или станьте индивидуальным участником</li>
+                <li class="list-group-item">Пройдите регистрацию и подтвердите участие</li>
+            </ol>
+        </div>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    
+{% endblock %}

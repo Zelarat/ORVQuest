@@ -1,0 +1,60 @@
+{% extends "./base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Создание задания с числовым ответом</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    {% if form.errors %}
+        <div class="alert alert-danger">
+            {% for field, errors in form.errors.items() %}
+                <strong>{{ form[field].label }}:</strong>
+                {{ ', '.join(errors) }}
+            {% endfor %}
+        </div>
+    {% endif %}
+    <form method="POST" action="{{ url_for('admin.create_integer') }}">
+        {{ form.hidden_tag() }}
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="mb-3">
+                    {{ form.quest_name.label(class="form-label") }}
+                    {{ form.quest_name(class="form-control", placeholder="Введите название задания") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.quest_description.label(class="form-label") }}
+                    {{ form.quest_description(class="form-control", placeholder="Введите условие задания") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.quest_points.label(class="form-label") }}
+                    {{ form.quest_points(class="form-control", placeholder="Введите награду за правильный ответ") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.quest_options.label(class="form-label") }}
+                    {{ form.quest_options(class="form-control", placeholder="Введите правильный ответ") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.quest_error_rate.label(class="form-label") }}
+                    {{ form.quest_error_rate(class="form-control", placeholder="Введите погрешность при ответе") }}
+                </div>
+            </div>
+        </div>
+        {{ form.submit(class="btn btn-primary") }}
+    </form>
+</div>
+
+<script>
+    document.querySelector('form').addEventListener('submit', function() {
+        const errorRate = document.querySelector('#quest_error_rate');
+        errorRate.value = errorRate.value.replace(',', '.');
+    });
+</script>
+{% endblock %}

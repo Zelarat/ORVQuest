@@ -1,0 +1,63 @@
+{% extends "./base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Создание задания с письменным ответом</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    <form method="POST" action="{{ url_for('admin.create_text') }}">
+        {{ form.hidden_tag() }}
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="mb-3">
+                    {{ form.quest_name.label(class="form-label") }}
+                    {{ form.quest_name(class="form-control", placeholder="Введите название задания") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.quest_description.label(class="form-label") }}
+                    {{ form.quest_description(class="form-control", placeholder="Введите условие задания") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.quest_points.label(class="form-label") }}
+                    {{ form.quest_points(class="form-control", placeholder="Введите награду за правильный ответ") }}
+                </div>
+                <div class="form-check mb-3">
+                    {{ form.quest_setting.label(class="form-check-label") }}
+                    {{ form.quest_setting(class="form-check-input", id="check-box") }}
+                </div>
+                <div class="mb-3" id="answer">
+                    {{ form.quest_options.label(class="form-label") }}
+                    {{ form.quest_options(class="form-control", placeholder="Введите правильный ответ") }}
+                </div>
+            </div>
+        </div>
+        {{ form.submit(class="btn btn-primary") }}
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const checkbox = document.getElementById('check-box');
+        const textInput = document.getElementById('answer');
+        
+        // Инициализация состояния при загрузке
+        if (checkbox.checked) {
+            textInput.style.display = 'none';
+        }
+        
+        // Обработчик изменений
+        checkbox.addEventListener('change', function() {
+            textInput.style.display = this.checked ? 'none' : 'block';
+        });
+    });
+</script>
+
+{% endblock %}

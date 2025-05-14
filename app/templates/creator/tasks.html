@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Управление заданиями</h1>
+        <div class="btn btn-primary">
+            <a href="{{ url_for('creator.constructor') }}"></a>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('creator.questions') }}" class="row g-3 align-items-center">
+                {{ search_form.hidden_tag() }}
+                <div class="col-md-4">
+                    {{ search_form.questions_name.label(class="form-label") }}
+                    {{ search_form.questions_name(class="form-control") }}
+                </div>
+                <div class="col-md-4">
+                    {{ search_form.questions_author.label(class="form-label") }}
+                    {{ search_form.questions_author(class="form-control") }}
+                </div>
+
+                <div class="col-12">
+                    <div class="d-flex justify-content-end gap-2">
+                        {{ search_form.search(class="btn btn-primary") }}
+                        {{ search_form.cancel(class="btn btn-primary") }}
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Название</th>
+                    <th>Автор</th>
+                    <th>Дата создания</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if questions %}
+                    {% for quest in questions %}
+                    <tr>
+                        <td>{{ quest.quest_name }}</td>
+                        <td>{{ quest.author }}</td>
+                        <td>{{ quest.create_at.strftime("%d-%m-%Y") }}</td>
+                        <td>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-primary btn-sm view-btn" data-task-id="{{ quest.id }}">👁</button>
+                                <button type="button" class="btn btn-success btn-sm edit-btn" data-task-id="{{ quest.id }}">⚙</button>
+                                <button type="button" class="btn btn-danger btn-sm delete-btn" data-task-id="{{ quest.id }}">🗑</button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center py-4">
+                            <div class="text-muted">Результаты не найдены</div>
+                            <a href="{{ url_for('admin.assignments') }}" class="btn btn-sm btn-outline-primary mt-2">
+                                Сбросить фильтры
+                            </a>
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

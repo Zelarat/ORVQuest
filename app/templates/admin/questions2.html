@@ -1,0 +1,231 @@
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet", href="{{ url_for('static', filename='css/base.css') }}">
+    {% if title %}
+    <title>{{ title }}</title>
+    {% else %}
+    <title>blank</title>
+    {% endif %}
+  </head>
+  <body>
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+
+            <a class="navbar-brand" href="#">EconQuest</a>
+
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.index') }}">Главная</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.info') }}">Правила</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.tour') }}">Турнир</a>
+                    </li>
+                    {% if current_user.is_anonymous %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('auth.login') }}">Вход</a>
+                    </li>    
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.personal') }}">Личный кабинет</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('auth.logout') }}">Выход</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+        <div class="content">
+
+<div class="container mt-4">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Управление заданиями</h1>
+        <a href="{{ url_for('admin.create_question') }}" class="btn btn-primary">
+            Создать новое задание
+        </a>
+    </div>
+
+    <!-- Расширенная форма поиска -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" action="{{ url_for('admin.assignments') }}" class="row g-3">
+                <div class="col-md-4">
+                    <label for="search_title" class="form-label">По названию</label>
+                    <input type="text" name="search_title" class="form-control" id="search_title" 
+                           placeholder="Название задания" value="{{ request.args.get('search_title', '') }}">
+                </div>
+                
+                <div class="col-md-4">
+                    <label for="search_author" class="form-label">По автору</label>
+                    <input type="text" name="search_author" class="form-control" id="search_author" 
+                           placeholder="Фамилия автора" value="{{ request.args.get('search_author', '') }}">
+                </div>
+                
+                <div class="col-md-4">
+                    <label for="search_type" class="form-label">По типу задания</label>
+                    <select name="search_type" id="search_type" class="form-select">
+                        <option value="">Все типы</option>
+                        {% for form in all_forms %}
+                            <option value="{{ form.id }}" {% if request.args.get('search_type') == form.id|string %}selected{% endif %}>
+                                {{ form.title }}
+                            </option>
+                        {% endfor %}
+                        <option value="no_form" {% if request.args.get('search_type') == 'no_form' %}selected{% endif %}>
+                            Без формы
+                        </option>
+                    </select>
+                </div>
+                
+                <div class="col-12">
+                    <div class="d-flex justify-content-end gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-search"></i> Поиск
+                        </button>
+                        <a href="{{ url_for('admin.assignments') }}" class="btn btn-outline-secondary">
+                            Сбросить
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>
+                        <a href="{{ url_for('admin.assignments', 
+                                          search_title=search_title,
+                                          search_author=search_author,
+                                          search_type=search_type,
+                                          sort='id',
+                                          direction='asc' if sort != 'id' or direction == 'desc' else 'desc') }}">
+                            ID
+                            {% if sort == 'id' %}
+                                {% if direction == 'asc' %}&uarr;{% else %}&darr;{% endif %}
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th>
+                        <a href="{{ url_for('admin.assignments', 
+                                          search_title=search_title,
+                                          search_author=search_author,
+                                          search_type=search_type,
+                                          sort='quest_name',
+                                          direction='asc' if sort != 'quest_name' or direction == 'desc' else 'desc') }}">
+                            Название
+                            {% if sort == 'quest_name' %}
+                                {% if direction == 'asc' %}&uarr;{% else %}&darr;{% endif %}
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th>
+                        <a href="{{ url_for('admin.assignments', 
+                                          search_title=search_title,
+                                          search_author=search_author,
+                                          search_type=search_type,
+                                          sort='task_type',
+                                          direction='asc' if sort != 'task_type' or direction == 'desc' else 'desc') }}">
+                            Вид задания
+                            {% if sort == 'task_type' %}
+                                {% if direction == 'asc' %}&uarr;{% else %}&darr;{% endif %}
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th>
+                        <a href="{{ url_for('admin.assignments', 
+                                          search_title=search_title,
+                                          search_author=search_author,
+                                          search_type=search_type,
+                                          sort='create_at',
+                                          direction='asc' if sort != 'create_at' or direction == 'desc' else 'desc') }}">
+                            Время создания
+                            {% if sort == 'create_at' %}
+                                {% if direction == 'asc' %}&uarr;{% else %}&darr;{% endif %}
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th>
+                        <a href="{{ url_for('admin.assignments', 
+                                          search_title=search_title,
+                                          search_author=search_author,
+                                          search_type=search_type,
+                                          sort='author',
+                                          direction='asc' if sort != 'author' or direction == 'desc' else 'desc') }}">
+                            Создатель
+                            {% if sort == 'author' %}
+                                {% if direction == 'asc' %}&uarr;{% else %}&darr;{% endif %}
+                            {% endif %}
+                        </a>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if assignments %}
+                    {% for assignment in assignments %}
+                    <tr>
+                        <td>{{ assignment.id }}</td>
+                        <td>{{ assignment.quest_name }}</td>
+                        <td>{{ assignment.task_type }}</td>
+                        <td>{{ assignment.create_at.strftime('%d.%m.%Y %H:%M') }}</td>
+                        <td>{{ assignment.author }}</td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center py-4">
+                            <div class="text-muted">Результаты не найдены</div>
+                            <a href="{{ url_for('admin.assignments') }}" class="btn btn-sm btn-outline-primary mt-2">
+                                Сбросить фильтры
+                            </a>
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+</div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    
+
+    <footer class="bg-dark text-white py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <p>© 2025 Студенческие экономические турниры. Все права защищены.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a href="#" class="text-white me-3">О нас</a>
+                    <a href="#" class="text-white me-3">События</a>
+                    <a href="#" class="text-white me-3">Контакты</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+  </body>
+</html>

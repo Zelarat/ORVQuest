@@ -1,0 +1,45 @@
+{% extends "./base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Создание задания с числовым ответом</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    <form method="POST" action="{{ url_for('admin.edit_integer', task_id=task_id) }}">
+        {{ form.hidden_tag() }}
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="mb-3">
+                    {{ form.quest_name.label(class="form-label") }}
+                    {{ form.quest_name(class="form-control", placeholder="Введите название задания") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.quest_description.label(class="form-label") }}
+                    {{ form.quest_description(class="form-control", placeholder="Введите условие задания") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.quest_points.label(class="form-label") }}
+                    {{ form.quest_points(class="form-control", placeholder="Введите награду за правильный ответ") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.quest_options.label(class="form-label") }}
+                    {{ form.quest_options(class="form-control", placeholder="Введите правильный ответ") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.quest_error_rate.label(class="form-label") }}
+                    {{ form.quest_error_rate(class="form-control", placeholder="Введите погрешность при ответе (без знаков)") }}
+                </div>
+            </div>
+        </div>
+        {{ form.edit(class="btn btn-primary") }}
+    </form>
+</div>
+{% endblock %}

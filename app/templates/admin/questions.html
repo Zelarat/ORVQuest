@@ -1,0 +1,154 @@
+{% extends "./base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Управление заданиями</h1>
+        <button type="button" class="btn btn-primary", data-bs-toggle="modal" data-bs-target="#myModal">
+            Создать новое задание
+        </button>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('admin.questions') }}" class="row g-3 align-items-center">
+                {{ search_form.hidden_tag() }}
+                <div class="col-md-4">
+                    {{ search_form.questions_name.label(class="form-label") }}
+                    {{ search_form.questions_name(class="form-control") }}
+                </div>
+                <div class="col-md-4">
+                    {{ search_form.questions_type.label(class="form-label") }}
+                    {{ search_form.questions_type(class="form-control") }}
+                </div>
+                <div class="col-md-4">
+                    {{ search_form.questions_author.label(class="form-label") }}
+                    {{ search_form.questions_author(class="form-control") }}
+                </div>
+
+                <div class="col-12">
+                    <div class="d-flex justify-content-end gap-2">
+                        {{ search_form.search(class="btn btn-primary") }}
+                        {{ search_form.cancel(class="btn btn-primary") }}
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Название</th>
+                    <th>Тип</th>
+                    <th>Автор</th>
+                    <th>Дата создания</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if tasks %}
+                    {% for task in tasks %}
+                    <tr>
+                        <td>{{ task.quest_name }}</td>
+                        <td>{{ task.task_type }}</td>
+                        <td>{{ task.author }}</td>
+                        <td>{{ task.create_at.strftime("%d-%m-%Y") }}</td>
+                        <td>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-primary btn-sm view-btn" data-task-id="{{ task.id }}">👁</button>
+                                <button type="button" class="btn btn-success btn-sm edit-btn" data-task-id="{{ task.id }}">⚙</button>
+                                <button type="button" class="btn btn-danger btn-sm delete-btn" data-task-id="{{ task.id }}">🗑</button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center py-4">
+                            <div class="text-muted">Результаты не найдены</div>
+                            <a href="{{ url_for('admin.assignments') }}" class="btn btn-sm btn-outline-primary mt-2">
+                                Сбросить фильтры
+                            </a>
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!--МОДАЛЬНОЕ ОКНО-->
+<div class="modal fade" id="myModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{{ url_for('admin.select_quest_type_create') }}">
+                {{ modal_form.hidden_tag() }}
+                <div class="modal-header">
+                    <h5 class="modal-title">Создание задания</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Выберите тип задания, которое хотите создать</p>
+                    {{ modal_form.select_quest_type(class="form-select") }}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    {{ modal_form.submit(class="btn btn-primary") }}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Обработчик для кнопки просмотра
+        document.querySelectorAll('.view-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const taskId = this.getAttribute('data-task-id');
+                window.location.href = `/admin/tasks/${taskId}/view`;
+            });
+        });
+
+        // Обработчик для кнопки редактирования
+        document.querySelectorAll('.edit-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const taskId = this.getAttribute('data-task-id');
+                window.location.href = `/admin/tasks/${taskId}/edit`;
+            });
+        });
+
+        // Обработчик для кнопки удаления (с подтверждением)
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const taskId = this.getAttribute('data-task-id');
+                if (confirm('Вы уверены, что хотите удалить это задание?')) {
+                    fetch(`/admin/tasks/${taskId}/delete`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': document.querySelector('[name=csrf_token]').value
+                        }
+                    }).then(response => {
+                        if (response.ok) {
+                            window.location.reload();
+                        }
+                    });
+                }
+            });
+        });
+    });
+
+    function openModal() {
+        var myModal = new bootstrap.Modal(document.getElementById('myModal'));
+        myModal.show();
+    }
+
+    function closeModal() {
+        var myModal = bootstrap.Modal.getInstance(document.getElementById('myModal'));
+        myModal.hide();
+    }
+</script>
+{% endblock %}
