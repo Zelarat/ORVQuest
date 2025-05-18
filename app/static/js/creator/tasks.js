@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.view-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const taskId = this.getAttribute('data-task-id');
-            window.location.href = `/admin/tasks/${taskId}/view`;
+            window.location.href = `/creator/tasksView/${taskId}`;
         });
     });
 
@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.edit-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const taskId = this.getAttribute('data-task-id');
-            window.location.href = `/admin/tasks/${taskId}/edit`;
+            window.location.href = `/creator/tasksEdit/${taskId}`;
         });
     });
 
@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
         btn.addEventListener('click', function() {
             const taskId = this.getAttribute('data-task-id');
             if (confirm('Вы уверены, что хотите удалить это задание?')) {
-                fetch(`/admin/tasks/${taskId}/delete`, {
+                fetch(`/creator/tasksDelete/${taskId}`, {
                     method: 'POST',
                     headers: {
                         'X-CSRFToken': document.querySelector('[name=csrf_token]').value

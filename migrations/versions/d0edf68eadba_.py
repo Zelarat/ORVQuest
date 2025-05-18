@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: bc17b639428f
+Revision ID: d0edf68eadba
 Revises: 
-Create Date: 2025-05-09 15:23:42.676715
+Create Date: 2025-05-17 16:13:42.345889
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'bc17b639428f'
+revision = 'd0edf68eadba'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -21,9 +21,6 @@ def upgrade():
     op.create_table('task',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('quest_name', sa.String(length=255), nullable=False),
-    sa.Column('question', sa.Text(), nullable=False),
-    sa.Column('task_type', sa.String(length=32), nullable=False),
-    sa.Column('points', sa.Integer(), nullable=False),
     sa.Column('create_at', sa.DateTime(), nullable=False),
     sa.Column('author', sa.String(length=255), nullable=False),
     sa.PrimaryKeyConstraint('id')
@@ -34,6 +31,7 @@ def upgrade():
     sa.Column('tour_description', sa.Text(), nullable=True),
     sa.Column('test_duration', sa.Integer(), nullable=True),
     sa.Column('create_at', sa.DateTime(), nullable=False),
+    sa.Column('start_at', sa.DateTime(), nullable=False),
     sa.Column('author', sa.String(length=128), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
@@ -48,13 +46,10 @@ def upgrade():
     sa.UniqueConstraint('email'),
     sa.UniqueConstraint('username')
     )
-    op.create_table('correct_answers',
+    op.create_table('task_answer',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('task_id', sa.Integer(), nullable=False),
-    sa.Column('numeric_answer', sa.Float(), nullable=True),
-    sa.Column('text_answer', sa.Text(), nullable=True),
-    sa.Column('is_regex', sa.Boolean(), nullable=False),
-    sa.Column('tolerance', sa.Float(), nullable=False),
+    sa.Column('correct_answer', sa.JSON(), nullable=True),
     sa.ForeignKeyConstraint(['task_id'], ['task.id'], ),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('task_id')
@@ -119,7 +114,7 @@ def downgrade():
     op.drop_table('tour_setting')
     op.drop_table('tour_result')
     op.drop_table('task_options')
-    op.drop_table('correct_answers')
+    op.drop_table('task_answer')
     op.drop_table('users')
     op.drop_table('tournament')
     op.drop_table('task')

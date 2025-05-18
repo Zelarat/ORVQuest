@@ -62,62 +62,29 @@ class Task(db.Model):
     
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
     quest_name: so.Mapped[str] = so.mapped_column(sa.String(255), nullable=False)
-    question: so.Mapped[str] = so.mapped_column(sa.Text, nullable=False)  # Текст вопроса
-    task_type: so.Mapped[str] = so.mapped_column(sa.String(32), nullable=False)  # Тип задания
-    points: so.Mapped[int] = so.mapped_column(sa.Integer, nullable=False, default=1)  # Количество очков за задание
     create_at: so.Mapped[datetime] = so.mapped_column(default=datetime.now(timezone.utc), nullable=False)
     author: so.Mapped[str] = so.mapped_column(sa.String(255), nullable=False)
     
     # Connect
-    options: so.Mapped["TaskOption"] = so.relationship("TaskOption", back_populates="task", uselist=False, cascade="all, delete-orphan")
-    user_answer: so.Mapped["UserAnswer"] = so.relationship("UserAnswer", back_populates="task", cascade="all, delete-orphan")
-    text_answer: so.Mapped["TextAnswer"] = so.relationship("TextAnswer", back_populates="task", cascade="all, delete-orphan")
-    number_answer: so.Mapped["NumberAnswer"] = so.relationship("NumberAnswer", back_populates="task", uselist=False, cascade="all, delete-orphan")
+    user_answer: so.WriteOnlyMapped["UserAnswer"] = so.relationship(back_populates="task")
     
-    taskSelectedText: so.Mapped["TaskSelectedText"] = so.relationship(back_populates="task", uselist=False, cascade="all, delete-orphan") 
+    taskOptions: so.Mapped["TaskOptions"] = so.relationship(back_populates="task", uselist=False, cascade="all, delete-orphan") 
+    taskAnswer: so.Mapped["TaskAnswer"] = so.relationship(back_populates="task", uselist=False, cascade="all, delete-orphan")
 
-class TaskSelectedText(db.Model):
+class TaskOptions(db.Model):
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
     task_id: so.Mapped[int] = so.mapped_column(sa.Integer, sa.ForeignKey("task.id"), unique=True)
     options: so.Mapped[Optional[Dict[str, dict]]] = so.mapped_column(sa.JSON)
-
-    task: so.Mapped["Task"] = so.relationship(back_populates="taskSelectedText")
+    task: so.Mapped["Task"] = so.relationship(back_populates="taskOptions")
+    
+class TaskAnswer(db.Model):
+    id: so.Mapped[int] = so.mapped_column(primary_key=True)
+    task_id: so.Mapped[int] = so.mapped_column(sa.Integer, sa.ForeignKey("task.id"), unique=True)
+    correct_answer: so.Mapped[Optional[Dict[str, dict]]] = so.mapped_column(sa.JSON)
+    task: so.Mapped["Task"] = so.relationship(back_populates="taskAnswer")
 
 #------------------------------------------------------------------------------------------
 
-
-class TaskOption(db.Model):
-    """Варианты ответов для заданий (для типов с выбором)"""
-    __tablename__ = 'task_options'
-    
-    id: so.Mapped[int] = so.mapped_column(sa.Integer, primary_key=True)
-    task_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey("task.id"), unique=True)
-    options: so.Mapped[Optional[Dict[str, Any]]] = so.mapped_column(sa.JSON)
-    
-    # Connect
-    task: so.Mapped["Task"] = so.relationship(back_populates="options")
-    
-class TextAnswer(db.Model):
-    __tablename__ = "text_answer"
-    
-    id: so.Mapped[int] = so.mapped_column(primary_key=True)
-    task_id: so.Mapped[int] = so.mapped_column(sa.Integer, sa.ForeignKey("task.id"), nullable=False, unique=True)
-    text_answer: so.Mapped[str] = so.mapped_column(sa.Text, nullable=True)
-    is_regular: so.Mapped[bool] = so.mapped_column(sa.Boolean, nullable=False)
-    
-    # Connect
-    task: so.Mapped["Task"] = so.relationship("Task", back_populates="text_answer")
-
-class NumberAnswer(db.Model):
-    __tablename__ = "number_answer"
-    
-    id: so.Mapped[int] = so.mapped_column(primary_key=True)
-    task_id: so.Mapped[int] = so.mapped_column(sa.Integer, sa.ForeignKey("task.id"), nullable=False, unique=True)
-    answer: so.Mapped[float] = so.mapped_column(sa.Float, nullable=False)
-    error_rate: so.Mapped[float] = so.mapped_column(sa.Float, nullable=False, default=0.0)
-    
-    # Connect
-    task: so.Mapped["Task"] = so.relationship("Task", back_populates="number_answer")
     
 class Tournament(db.Model):
     __tablename__ = "tournament"

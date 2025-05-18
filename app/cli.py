@@ -8,8 +8,8 @@ bp = Blueprint('cli', __name__, cli_group=None)
 @bp.cli.command('show-users')
 def show_users():
     """Показать всех пользователей"""
-    from app.models import User
-    users = User.query.all()
+    from app.models import Users
+    users = Users.query.all()
     for u in users:
         print(f"{u.id}: {u.username} ({u.email})")
         

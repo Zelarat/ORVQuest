@@ -2,20 +2,22 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet", href="{{ url_for('static', filename='css/base.css') }}">
+    {% block extra_css %}{% endblock %}
     {% if title %}
     <title>{{ title }}</title>
     {% else %}
     <title>blank</title>
     {% endif %}
+
   </head>
   <body>
 
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container-fluid">
 
-            <a class="navbar-brand" href="#">ORVQuest</a>
+            <a class="navbar-brand" href="{{ url_for('main.index') }}">ORVQuest</a>
 
 
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -69,8 +71,6 @@
                     <p>© 2025 Студенческие экономические турниры. Все права защищены.</p>
                 </div>
                 <div class="col-md-6 text-md-end">
-                    <a href="#" class="text-white me-3">О нас</a>
-                    <a href="#" class="text-white me-3">События</a>
                     <a href="#" class="text-white me-3">Контакты</a>
                 </div>
             </div>

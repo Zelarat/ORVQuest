@@ -1,0 +1,37 @@
+.widget-container {
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: #f8f9fa;
+        }
+.option-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+.option-container input[type="text"] {
+    flex-grow: 1;
+    margin-right: 10px;
+}
+.remove-btn {
+    white-space: nowrap;
+}
+.file-upload-container {
+    margin-top: 15px;
+    padding: 10px;
+    border: 1px dashed #ccc;
+    border-radius: 5px;
+}
+.file-answers-container {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #f0f0f0;
+    border-radius: 5px;
+}
+.hidden {
+    display: none;
+}
+.form-check-input {
+    border-color: gray;
+}
